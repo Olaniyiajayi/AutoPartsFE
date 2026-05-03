@@ -1,0 +1,106 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny Catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- PHASE 3: PRIMITIVE DEFINITIONS ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn();
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Identify ownership by tenantId (which corresponds to owner's UID in this app)
+    function isOwner(data) {
+      return isSignedIn() && (data.pk == 'TENANT#' + request.auth.uid || data.pk == 'TENANT#1');
+    }
+
+    // --- PHASE 4: DRAFTING THE FORTRESS RULES ---
+
+    match /records/{recordId} {
+      // Global constraint: Every record must have pk and sk
+      function isValidBase(data) {
+        return data.keys().hasAll(['pk', 'sk', 'type']) &&
+               data.pk.startsWith('TENANT#') &&
+               (data.pk == 'TENANT#' + request.auth.uid || data.pk == 'TENANT#1');
+      }
+
+      // --- Entity Validation Blueprints ---
+
+      function isValidTenant(data) {
+        return data.type == 'tenant' && data.sk == 'TENANT_DETAILS' &&
+               data.name is string && data.name.size() >= 2 && data.name.size() <= 100;
+      }
+
+      function isValidPart(data) {
+        return data.type == 'part' && data.sk.startsWith('PART#') &&
+               data.name is string && data.name.size() >= 2 && data.name.size() <= 150 &&
+               data.price is number && data.price >= 0;
+      }
+
+      function isValidCustomer(data) {
+        return data.type == 'customer' && data.sk.startsWith('CUSTOMER#') &&
+               data.name is string && data.name.size() >= 2 && data.name.size() <= 100;
+      }
+
+      function isValidInvoice(data) {
+        return data.type == 'invoice' && data.sk.startsWith('INVOICE#') &&
+               data.total is number && data.total >= 0;
+      }
+
+      function isValidUser(data) {
+        return data.type == 'user' && data.sk.startsWith('USER#') &&
+               data.email is string && data.role in ['SuperAdmin', 'Admin', 'Technician'];
+      }
+
+      function isValidCounter(data) {
+        return data.type == 'counter' && data.sk.startsWith('COUNTER#') &&
+               data.value is number;
+      }
+
+      // --- CRUD Operations ---
+
+      allow create: if isVerified() && isValidBase(incoming()) && (
+        isValidTenant(incoming()) ||
+        isValidPart(incoming()) ||
+        isValidCustomer(incoming()) ||
+        isValidInvoice(incoming()) ||
+        isValidUser(incoming()) ||
+        isValidCounter(incoming())
+      );
+
+      allow update: if isVerified() && isOwner(existing()) && isValidBase(incoming()) && (
+        incoming().type == existing().type && (
+          (existing().type == 'tenant' && isValidTenant(incoming())) ||
+          (existing().type == 'part' && isValidPart(incoming())) ||
+          (existing().type == 'customer' && isValidCustomer(incoming())) ||
+          (existing().type == 'invoice' && isValidInvoice(incoming())) ||
+          (existing().type == 'user' && isValidUser(incoming())) ||
+          (existing().type == 'counter' && isValidCounter(incoming()))
+        )
+      );
+
+      // Secure list and get
+      allow read: if isSignedIn() && (resource == null || resource.data.pk == 'TENANT#' + request.auth.uid || resource.data.pk == 'TENANT#1');
+      
+      allow delete: if isVerified() && isOwner(existing());
+    }
+  }
+}

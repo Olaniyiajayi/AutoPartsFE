@@ -1,0 +1,8 @@
+{
+  "name": "AutoFix Naija Inventory",
+  "description": "A professional auto part inventory management system for the Nigerian market. Features include stock tracking, Naira pricing, category management, and AI-powered part identification.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": []
+}

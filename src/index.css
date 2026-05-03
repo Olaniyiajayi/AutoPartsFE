@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  
+  /* Nigerian & Google Palette */
+  --color-naija-green-50: #ecfdf5;
+  --color-naija-green-600: #059669; /* Deep Green */
+  --color-naija-green-700: #047857;
+  --color-earth-ocre: #D97706; /* Warm highlight */
+  --color-google-blue: #4285F4;
+  --color-google-red: #EA4335;
+  --color-google-yellow: #FBBC05;
+  --color-google-green: #34A853;
+}
+
+@layer base {
+  body {
+    @apply antialiased text-slate-900 bg-slate-50/50;
+  }
+}
+
+@layer components {
+  .google-card {
+    @apply bg-white rounded-[2rem] border border-slate-100 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)];
+  }
+  
+  .pattern-bg {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.62 9L0 63.62V60h3.62L60 3.62V0h-3.62L54.62 9zM3.62 60H0v-3.62L56.38 0H60v3.62L3.62 60z' fill='%23059669' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "entities": {
+    "AutoPart": {
+      "title": "Auto Part",
+      "description": "An automotive spare part in the inventory",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "name": { "type": "string" },
+        "sku": { "type": "string" },
+        "category": { "type": "string" },
+        "brand": { "type": "string" },
+        "series": { "type": "string" },
+        "compatibleModels": { "type": "array", "items": { "type": "string" } },
+        "price": { "type": "number" },
+        "costPriceUSD": { "type": "number" },
+        "quantity": { "type": "number" },
+        "minStockLevel": { "type": "number" },
+        "location": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "imageUrls": { "type": "array", "items": { "type": "string" } },
+        "lastUpdated": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "tenantId", "name", "sku", "category", "brand", "price", "quantity", "minStockLevel", "location", "lastUpdated"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "A customer who buys auto parts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "address": { "type": "string" },
+        "totalSpent": { "type": "number" },
+        "lastVisit": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "tenantId", "name", "phone", "totalSpent", "lastVisit"]
+    },
+    "Invoice": {
+      "title": "Invoice",
+      "description": "A record of a sale",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "invoiceNumber": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "tax": { "type": "number" },
+        "total": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "tenantId", "invoiceNumber", "customerId", "customerName", "items", "subtotal", "tax", "total", "paymentMethod", "status", "createdAt"]
+    },
+    "Tenant": {
+      "title": "Tenant",
+      "description": "A workshop owner using the app",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "location": { "type": "string" },
+        "logo": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "currencySymbol": { "type": "string" },
+        "customCategories": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "name", "location"]
+    }
+  },
+  "firestore": {
+    "/records/{id}": {
+      "schema": "AutoPart | Customer | Invoice | Tenant",
+      "description": "Unified data table for all application records"
+    }
+  }
+}
