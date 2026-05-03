@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Sparkles, Camera, ChevronRight } from 'lucide-react';
+import { X, Save, Sparkles, Camera, ChevronRight, AlertCircle } from 'lucide-react';
 import { AutoPart, Tenant } from '../types';
 import { geminiService } from '../services/geminiService';
 import { inventoryService } from '../services/inventoryService';
@@ -10,13 +10,13 @@ import { cn } from '../lib/utils';
 interface PartFormProps {
   part?: AutoPart | null;
   tenant: Tenant;
-  onSave: (part: Omit<AutoPart, 'pk' | 'sk' | 'type'>) => void;
+  onSave: (part: Omit<AutoPart, 'pk' | 'sk' | 'type' | 'tenantId'>) => void | Promise<void>;
   onAddCustomCategory: (category: string) => void;
   onCancel: () => void;
 }
 
 export function PartForm({ part, tenant, onSave, onAddCustomCategory, onCancel }: PartFormProps) {
-  const [formData, setFormData] = useState<Omit<AutoPart, 'pk' | 'sk' | 'type'>>({
+  const [formData, setFormData] = useState<Omit<AutoPart, 'pk' | 'sk' | 'type' | 'tenantId'>>({
     id: part?.id || Math.random().toString(36).substr(2, 9),
     name: part?.name || '',
     sku: part?.sku || '',
@@ -134,6 +134,13 @@ export function PartForm({ part, tenant, onSave, onAddCustomCategory, onCancel }
       }));
       setModelInput('');
     }
+  };
+
+  const removeModel = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      compatibleModels: prev.compatibleModels.filter((_, idx) => idx !== index),
+    }));
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {

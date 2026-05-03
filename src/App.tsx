@@ -138,7 +138,7 @@ export default function App() {
     setStats(inventoryService.getStats(parts));
   }, [parts]);
 
-  const handleSavePart = async (part: Omit<AutoPart, 'pk' | 'sk' | 'type'>) => {
+  const handleSavePart = async (part: Omit<AutoPart, 'pk' | 'sk' | 'type' | 'tenantId'>) => {
     if (!currentTenantId) {
       throw new Error('Tenant ID not found. Please log in again.');
     }
